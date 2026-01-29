@@ -9,6 +9,7 @@ export default function Home(){
   const [kaloria, setCalories] = useState(' ')
   const [ar, setPrice] = useState(' ')
   const [cakes, setCakes] = useState<Cake[]>([]) //Tömb
+  const [editId, setEditId] = useState<number|null>(null)
 
   async function loadCakes() {                                          //rakattintuk a suti betoltesre ez aktiválódik
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cakes`) //ez a valtozo tartalmazza h h lehet elerni
@@ -27,7 +28,39 @@ export default function Home(){
         ar: Number(ar)
       })
      }) 
-    setName(' ')                                                          //vegen uritse ki
+    resetForm()
+    loadCakes()
+  }
+  async function updateCake(){
+    if(editId===null) return
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cakes/${editId}`,{
+      method: 'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        nev: nev,
+        kaloria: Number(kaloria) ,
+        ar: Number(ar)
+      })
+    })
+  }
+
+  async function deleteCake(id:number){
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cakes/${id}`,{
+      method: 'DELETE',
+    })
+  function startEdit(id:number){
+    setEditId(id)
+    const cake = cakes.find(c=>c.id===id)
+    if(cake){
+      setName(cake.nev)
+      setCalories(String(cake.kaloria))
+      setPrice(String(cake.ar))
+    }
+  }
+
+  function resetForm(){
+    setEditId(null)
+    setName(' ')
     setCalories(' ')
     setPrice(' ')
   }
@@ -64,4 +97,4 @@ export default function Home(){
   )
 
   
-}
+}}
